@@ -142,175 +142,158 @@
 </section>
 
     <script>
-    // Initialize global multi-currency state variables first
-    window.currentCurrency = 'GBP';
-    window.goldPriceInGBP = 0;
+  <script>
+    // 1. Initialize variables right at the top so the whole page can see them
+    let currentCurrency = 'GBP';
+    let goldPriceInGBP = 0;
+    let goldPricePerOz = 3238.03; // Default backup price
+    let chart = null;
+    const GRAMS_PER_OZ = 31.1034768;
 
-    (function() {
-        // Your API key
-        const apiKey = "goldapi-584738303b42f430b53b580bee1ab313-io";
-        let goldPricePerOz = 3238.03; // Default backup price
-        let chart = null;
-        const GRAMS_PER_OZ = 31.1034768;
+    // Define currency data maps
+    const rates = { GBP: 1, USD: 1.29, EUR: 1.18, CAD: 1.77, AUD: 1.95 };
+    const symbols = { GBP: '£', USD: '$', EUR: '€', CAD: '$', AUD: '$' };
 
-            function initChart(dates, prices) {
-                const options = {
-                    series: [{ name: 'Gold Price (£)', data: prices }],
-                    chart: { 
-                        type: 'area', 
-                        height: 180, 
-                        toolbar: { show: false }, 
-                        zoom: { enabled: false },
-                        animations: { enabled: true, speed: 600 }
-                    },
-                    colors: ['#d97706'],
-                    dataLabels: { enabled: false },
-                    stroke: { curve: 'smooth', width: 2 },
-                    fill: {
-                        type: 'gradient',
-                        gradient: { shadeIntensity: 1, opacityFrom: 0.4, opacityTo: 0.05, stops: [0, 90, 100] }
-                    },
-                    xaxis: { categories: dates, labels: { show: false }, axisBorder: { show: false } },
-                    yaxis: { 
-                        labels: { 
-                            style: { colors: '#9ca3af', fontSize: '10px' },
-                                formatter: (val) => {
-                                   const symbols = { GBP: '£', USD: '$', EUR: '€', CAD: '$', AUD: '$' };
-                const rates = { GBP: 1, USD: 1.29, EUR: 1.18, CAD: 1.77, AUD: 1.95 };
-                const activeCurrency = (typeof currentCurrency !== 'undefined') ? currentCurrency : 'GBP';
-                const convertedVal = val * (rates[activeCurrency] || 1);
-                return (symbols[activeCurrency] || '£') + Math.round(convertedVal);
-            }
-        }
-    },
-    grid: { borderColor: '#f3f4f6' },
-    tooltip: {
-        y: { formatter: (val) => {
-            const symbols = { GBP: '£', USD: '$', EUR: '€', CAD: '$', AUD: '$' };
-            const rates = { GBP: 1, USD: 1.29, EUR: 1.18, CAD: 1.77, AUD: 1.95 };
-            const activeCurrency = (typeof currentCurrency !== 'undefined') ? currentCurrency : 'GBP';
-            const convertedVal = val * (rates[activeCurrency] || 1);
-            return (symbols[activeCurrency] || '£') + Math.round(convertedVal).toLocaleString();
-        }
-        }
-    }
-};
-                    
-                
-
-                if (chart) { 
-                    chart.updateOptions(options); 
-                } else {
-                    const chartEl = document.querySelector("#gold-chart");
-                    if (chartEl) {
-                        chart = new ApexCharts(chartEl, options);
-                        chart.render();
-                    }
-                }
-            }
-
-            function generateTrendData(timeframe) {
-                let dataPoints = timeframe === '1D' ? 12 : timeframe === '7D' ? 7 : 30;
-                let prices = [];
-                let dates = [];
-                for(let i = dataPoints - 1; i >= 0; i--) {
-                    let randomOscillation = (Math.sin(i * 0.5) * 15) + (Math.cos(i * 0.2) * 10);
-                    if (i === 0) randomOscillation = 0;
-                    prices.push(parseFloat((goldPricePerOz - randomOscillation).toFixed(2)));
-                    dates.push(timeframe === '1D' ? `${i}h ago` : `${i}d ago`);
-                }
-                initChart(dates, prices);
-            }
-
-            window.changeTimeframe = function(timeframe, element) {
-                const buttons = element.parentElement.querySelectorAll('button');
-                buttons.forEach(btn => {
-                    btn.className = "px-3 py-1 rounded-md hover:text-gray-800 transition-all duration-200 cursor-pointer";
-                });
-                element.className = "px-3 py-1 rounded-md bg-white text-amber-600 shadow-sm transition-all duration-200 cursor-pointer";
-                generateTrendData(timeframe);
-            }
-
-            async function fetchPrice() {
-                try {
-                    const response = await fetch("https://www.goldapi.io/api/XAU/GBP", {
-                        method: 'GET',
-                        headers: { 'x-access-token': apiKey, 'Content-Type': 'application/json' }
-                    });
-                    
-                    if (!response.ok) throw new Error("API Connection Error");
-                    
-                    const data = await response.json();
-                    if (data.price) {
-                        goldPricePerOz = data.price;
-                        const priceEl = document.getElementById('gold-price');
-                               goldPriceInGBP = data.price;
-        if (typeof window.updateCurrency === 'function') window.updateCurrency(currentCurrency);
-
-                        const timeEl = document.getElementById('timestamp');
-                        if (timeEl) timeEl.innerText = `Last market update: ${new Date().toLocaleTimeString()}`;
-                        
-                        updateScrap();
-                        generateTrendData('1D');
-                    }
-                } catch (error) {
-                    console.error("API Error:", error);
-                    const priceEl = document.getElementById('gold-price');
-                           goldPriceInGBP = goldPricePerOz;
-        if (typeof window.updateCurrency === 'function') window.updateCurrency(currentCurrency);
-
-                    
-                    const timeEl = document.getElementById('timestamp');
-                    if (timeEl) timeEl.innerText = `Live Backup Feed Connected`;
-                    
-                    updateScrap();
-                    generateTrendData('1D');
-                }
-            }
-
-            function updateScrap() {
-                const scrapEl = document.getElementById('scrap-total');
-                if (!scrapEl || goldPricePerOz === 0) return;
-                
-                const weight = parseFloat(document.getElementById('gold-weight').value) || 0;
-                const purity = parseFloat(document.getElementById('gold-purity').value);
-                       const rates = { GBP: 1, USD: 1.29, EUR: 1.18, CAD: 1.77, AUD: 1.95 };
-        const symbols = { GBP: '£', USD: '$', EUR: '€', CAD: '$', AUD: '$' };
-        
-        const baseTotal = (goldPricePerOz / GRAMS_PER_OZ) * purity * weight;
-        const convertedTotal = baseTotal * (rates[currentCurrency] || 1);
-        const currentSymbol = symbols[currentCurrency] || '£';
-        
-        scrapEl.innerText = currentSymbol + convertedTotal.toLocaleString(undefined, {minimumFractionDigits: 2});
-
-            }
-
-            const weightInput = document.getElementById('gold-weight');
-            const puritySelect = document.getElementById('gold-purity');
-            
-            if (weightInput) weightInput.addEventListener('input', updateScrap);
-            if (puritySelect) puritySelect.addEventListener('change', updateScrap);
-
-            fetchPrice();
-            setInterval(fetchPrice, 300000); // 5 min refresh
-  
-
+    // Make dropdown globally available to the HTML element
     window.updateCurrency = function(currency) {
         currentCurrency = currency;
         if (goldPriceInGBP > 0) {
-            const rates = { GBP: 1, USD: 1.29, EUR: 1.18, CAD: 1.77, AUD: 1.95 };
-            const symbol = { GBP: '£', USD: '$', EUR: '€', CAD: '$', AUD: '$' };
-            
             const convertedPrice = (goldPriceInGBP * (rates[currency] || 1)).toFixed(2);
-            document.getElementById('gold-price').innerText = symbol[currency] + convertedPrice;
-            
-            if (typeof updateScrap === 'function') updateScrap();
+            document.getElementById('gold-price').innerText = (symbols[currency] || '£') + convertedPrice;
+            updateScrap();
+            // Force chart re-render with active timeframe choice
+            const activeBtn = document.querySelector('.bg-white.text-amber-600');
+            const timeframe = activeBtn ? (activeBtn.textContent.includes('24') ? '1D' : activeBtn.textContent.includes('7') ? '7D' : '30D') : '1D';
+            generateTrendData(timeframe);
         }
-    }
+    };
 
-        })();
-       
+    // 2. Main execution loop
+    (function() {
+        const apiKey = "goldapi-584738303b42f430b53b580bee1ab313-io";
 
-    </script>
+        function initChart(dates, prices) {
+            const options = {
+                series: [{ name: 'Gold Price', data: prices }],
+                chart: {
+                    type: 'area',
+                    height: '100%',
+                    toolbar: { show: false },
+                    zoom: { enabled: false }
+                },
+                colors: ['#d97706'],
+                fill: {
+                    type: 'gradient',
+                    gradient: { shadeIntensity: 1, opacityFrom: 0.2, opacityTo: 0.05, stops: [0, 90, 100] }
+                },
+                dataLabels: { enabled: false },
+                stroke: { curve: 'smooth', width: 2 },
+                xaxis: {
+                    categories: dates,
+                    labels: { style: { colors: '#9ca3af', fontSize: '10px' } },
+                    axisBorder: { show: false },
+                    axisTicks: { show: false }
+                },
+                yaxis: {
+                    labels: {
+                        style: { colors: '#9ca3af', fontSize: '10px' },
+                        formatter: (val) => {
+                            const convertedVal = val * (rates[currentCurrency] || 1);
+                            return (symbols[currentCurrency] || '£') + Math.round(convertedVal);
+                        }
+                    }
+                },
+                grid: { borderColor: '#f3f4f6' },
+                tooltip: {
+                    y: { formatter: (val) => {
+                        const convertedVal = val * (rates[currentCurrency] || 1);
+                        return (symbols[currentCurrency] || '£') + Math.round(convertedVal).toLocaleString();
+                    }}
+                }
+            };
+
+            if (chart) { chart.destroy(); }
+            chart = new ApexCharts(document.querySelector("#chart"), options);
+            chart.render();
+        }
+
+        window.generateTrendData = function(timeframe) {
+            let basePrice = goldPriceInGBP > 0 ? goldPriceInGBP : goldPricePerOz;
+            let points = timeframe === '1D' ? 24 : timeframe === '7D' ? 7 : 30;
+            let dates = [];
+            let prices = [];
+            
+            for (let i = points - 1; i >= 0; i--) {
+                let date = new Date();
+                if (timeframe === '1D') {
+                    date.setHours(date.getHours() - i);
+                    dates.push(date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+                } else {
+                    date.setDate(date.getDate() - i);
+                    dates.push(date.toLocaleDateString([], { month: 'short', day: 'numeric' }));
+                }
+                let randomFluctuation = (Math.random() - 0.5) * (basePrice * 0.02);
+                prices.push(parseFloat((basePrice + randomFluctuation).toFixed(2)));
+            }
+            initChart(dates, prices);
+        };
+
+        window.changeTimeframe = function(timeframe, btnElement) {
+            const buttons = btnElement.parentElement.querySelectorAll('button');
+            buttons.forEach(btn => {
+                btn.className = "px-3 py-1 rounded-md hover:text-gray-800 transition-all duration-200 cursor-pointer";
+            });
+            btnElement.className = "px-3 py-1 rounded-md bg-white text-amber-600 shadow-sm transition-all duration-200 cursor-pointer";
+            generateTrendData(timeframe);
+        };
+
+        window.updateScrap = function() {
+            const weight = parseFloat(document.getElementById('weight').value) || 0;
+            const purity = parseFloat(document.getElementById('purity').value) || 0;
+            const scrapEl = document.getElementById('scrap-value');
+            if (!scrapEl) return;
+
+            let currentBasePrice = goldPriceInGBP > 0 ? goldPriceInGBP : goldPricePerOz;
+            const baseTotal = (currentBasePrice / GRAMS_PER_OZ) * purity * weight;
+            const convertedTotal = baseTotal * (rates[currentCurrency] || 1);
+            
+            scrapEl.innerText = (symbols[currentCurrency] || '£') + convertedTotal.toLocaleString(undefined, {minimumFractionDigits: 2});
+        };
+
+        async function fetchPrice() {
+            const priceEl = document.getElementById('gold-price');
+            try {
+                const response = await fetch("https://goldapi.io", {
+                    headers: { "x-access-token": apiKey, "Content-Type": "application/json" }
+                });
+                const data = await response.json();
+                if (data && data.price) {
+                    goldPriceInGBP = data.price;
+                    window.updateCurrency(currentCurrency);
+                } else {
+                    throw new Error("Invalid API data structure");
+                }
+            } catch (error) {
+                console.log("API error, executing backup data feeds...", error);
+                goldPriceInGBP = goldPricePerOz;
+                window.updateCurrency(currentCurrency);
+            }
+        }
+
+        // Add input listeners safely once DOM content initializes
+        document.addEventListener('DOMContentLoaded', () => {
+            const weightInput = document.getElementById('weight');
+            const puritySelect = document.getElementById('purity');
+            if(weightInput) weightInput.addEventListener('input', updateScrap);
+            if(puritySelect) puritySelect.addEventListener('change', updateScrap);
+        });
+
+        // Initialize features setup
+        fetchPrice();
+        generateTrendData('1D');
+        setInterval(fetchPrice, 300000); // 5 min refresh loop
+    })();
+</script>
+
 </body>
 </html>
