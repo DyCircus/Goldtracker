@@ -208,8 +208,9 @@
                     if (data.price) {
                         goldPricePerOz = data.price;
                         const priceEl = document.getElementById('gold-price');
-                        if (priceEl) priceEl.innerText = "£" + data.price.toLocaleString(undefined, {minimumFractionDigits: 2});
-                        
+                               goldPriceInGBP = data.price;
+        if (typeof window.updateCurrency === 'function') window.updateCurrency(currentCurrency);
+
                         const timeEl = document.getElementById('timestamp');
                         if (timeEl) timeEl.innerText = `Last market update: ${new Date().toLocaleTimeString()}`;
                         
@@ -219,7 +220,9 @@
                 } catch (error) {
                     console.error("API Error:", error);
                     const priceEl = document.getElementById('gold-price');
-                    if (priceEl) priceEl.innerText = "£" + goldPricePerOz.toLocaleString(undefined, {minimumFractionDigits: 2});
+                           goldPriceInGBP = goldPricePerOz;
+        if (typeof window.updateCurrency === 'function') window.updateCurrency(currentCurrency);
+
                     
                     const timeEl = document.getElementById('timestamp');
                     if (timeEl) timeEl.innerText = `Live Backup Feed Connected`;
