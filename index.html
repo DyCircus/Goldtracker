@@ -238,8 +238,15 @@
                 
                 const weight = parseFloat(document.getElementById('gold-weight').value) || 0;
                 const purity = parseFloat(document.getElementById('gold-purity').value);
-                const total = (goldPricePerOz / GRAMS_PER_OZ) * purity * weight;
-                scrapEl.innerText = "£" + total.toLocaleString(undefined, {minimumFractionDigits: 2});
+                       const rates = { GBP: 1, USD: 1.29, EUR: 1.18, CAD: 1.77, AUD: 1.95 };
+        const symbols = { GBP: '£', USD: '$', EUR: '€', CAD: '$', AUD: '$' };
+        
+        const baseTotal = (goldPricePerOz / GRAMS_PER_OZ) * purity * weight;
+        const convertedTotal = baseTotal * (rates[currentCurrency] || 1);
+        const currentSymbol = symbols[currentCurrency] || '£';
+        
+        scrapEl.innerText = currentSymbol + convertedTotal.toLocaleString(undefined, {minimumFractionDigits: 2});
+
             }
 
             const weightInput = document.getElementById('gold-weight');
