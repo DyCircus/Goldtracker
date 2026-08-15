@@ -142,6 +142,9 @@
 </section>
 
     <script>
+        let currentCurrency = 'GBP';
+let goldPriceInGBP = 0;
+
         (function() {
             // Your API key
             const apiKey = "goldapi-584738303b42f430b53b580bee1ab313-io";
@@ -289,8 +292,7 @@
 
             fetchPrice();
             setInterval(fetchPrice, 300000); // 5 min refresh
-                let currentCurrency = 'GBP';
-    let goldPriceInGBP = 0;
+  
 
     window.updateCurrency = function(currency) {
         currentCurrency = currency;
