@@ -142,15 +142,16 @@
 </section>
 
     <script>
-        let currentCurrency = 'GBP';
-let goldPriceInGBP = 0;
+    // Initialize global multi-currency state variables first
+    window.currentCurrency = 'GBP';
+    window.goldPriceInGBP = 0;
 
-        (function() {
-            // Your API key
-            const apiKey = "goldapi-584738303b42f430b53b580bee1ab313-io";
-            let goldPricePerOz = 3238.03; // Default backup price
-            let chart = null;
-            const GRAMS_PER_OZ = 31.1034768;
+    (function() {
+        // Your API key
+        const apiKey = "goldapi-584738303b42f430b53b580bee1ab313-io";
+        let goldPricePerOz = 3238.03; // Default backup price
+        let chart = null;
+        const GRAMS_PER_OZ = 31.1034768;
 
             function initChart(dates, prices) {
                 const options = {
