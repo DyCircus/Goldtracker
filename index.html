@@ -46,10 +46,19 @@
         <p class="text-gray-400 text-xs mb-6">Live Spot Price per Troy Ounce</p>
 
         <!-- Live Price Box -->
-        <div class="bg-amber-50 p-4 rounded-xl border border-amber-100 mb-6 flex items-center justify-center gap-2">
-            <span id="gold-price" class="text-3xl font-black text-gray-800">Loading...</span>
-            <span id="currency" class="text-lg font-bold text-gray-500">GBP</span>
-        </div>
+<div class="bg-amber-50 p-4 rounded-xl border border-amber-100 mb-6 flex items-center justify-center gap-2">
+    <span id="gold-price" class="text-3xl font-black text-gray-800">Loading...</span>
+    
+    <!-- Multi-Currency Selection Dropdown Menu -->
+    <select id="currency" onchange="updateCurrency(this.value)" class="bg-transparent text-lg font-bold text-gray-500 border-none outline-none cursor-pointer focus:ring-0">
+        <option value="GBP" selected>GBP (£)</option>
+        <option value="USD">USD ($)</option>
+        <option value="EUR">EUR (€)</option>
+        <option value="CAD">CAD ($)</option>
+        <option value="AUD">AUD ($)</option>
+    </select>
+</div>
+
 
         <!-- INTERACTIVE CHART SECTIONS -->
         <div class="mb-6 bg-gray-50 p-4 rounded-xl border border-gray-200 text-left">
@@ -238,7 +247,25 @@
 
             fetchPrice();
             setInterval(fetchPrice, 300000); // 5 min refresh
+                let currentCurrency = 'GBP';
+    let goldPriceInGBP = 0;
+
+    window.updateCurrency = function(currency) {
+        currentCurrency = currency;
+        if (goldPriceInGBP > 0) {
+            const rates = { GBP: 1, USD: 1.29, EUR: 1.18, CAD: 1.77, AUD: 1.95 };
+            const symbol = { GBP: '£', USD: '$', EUR: '€', CAD: '$', AUD: '$' };
+            
+            const convertedPrice = (goldPriceInGBP * (rates[currency] || 1)).toFixed(2);
+            document.getElementById('gold-price').innerText = symbol[currency] + convertedPrice;
+            
+            if (typeof updateScrap === 'function') updateScrap();
+        }
+    }
+
         })();
+       
+
     </script>
 </body>
 </html>
