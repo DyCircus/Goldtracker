@@ -171,23 +171,26 @@
                         labels: { 
                             style: { colors: '#9ca3af', fontSize: '10px' },
                                 formatter: (val) => {
-                    const symbols = { GBP: '£', USD: '$', EUR: '€', CAD: '$', AUD: '$' };
-                    const rates = { GBP: 1, USD: 1.29, EUR: 1.18, CAD: 1.77, AUD: 1.95 };
-                    const convertedVal = val * (rates[currentCurrency] || 1);
-                    return (symbols[currentCurrency] || '£') + Math.round(convertedVal);
+                                   const symbols = { GBP: '£', USD: '$', EUR: '€', CAD: '$', AUD: '$' };
+                const rates = { GBP: 1, USD: 1.29, EUR: 1.18, CAD: 1.77, AUD: 1.95 };
+                const activeCurrency = (typeof currentCurrency !== 'undefined') ? currentCurrency : 'GBP';
+                const convertedVal = val * (rates[activeCurrency] || 1);
+                return (symbols[activeCurrency] || '£') + Math.round(convertedVal);
+            }
+        }
+    },
+    grid: { borderColor: '#f3f4f6' },
+    tooltip: {
+        y: { formatter: (val) => {
+            const symbols = { GBP: '£', USD: '$', EUR: '€', CAD: '$', AUD: '$' };
+            const rates = { GBP: 1, USD: 1.29, EUR: 1.18, CAD: 1.77, AUD: 1.95 };
+            const activeCurrency = (typeof currentCurrency !== 'undefined') ? currentCurrency : 'GBP';
+            const convertedVal = val * (rates[activeCurrency] || 1);
+            return (symbols[activeCurrency] || '£') + Math.round(convertedVal).toLocaleString();
+        }
+        }
+    }
 
-
-                        } 
-                    },
-                    grid: { borderColor: '#f3f4f6' },
-                    tooltip: {
-                                      y: { formatter: (val) => {
-                    const symbols = { GBP: '£', USD: '$', EUR: '€', CAD: '$', AUD: '$' };
-                    const rates = { GBP: 1, USD: 1.29, EUR: 1.18, CAD: 1.77, AUD: 1.95 };
-                    const convertedVal = val * (rates[currentCurrency] || 1);
-                    return (symbols[currentCurrency] || '£') + Math.round(convertedVal).toLocaleString();
-                }
-                                         }
                     }
                 };
 
