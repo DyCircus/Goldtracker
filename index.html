@@ -163,23 +163,38 @@
         }
     })
 
-    .then(response => response.json())
-    .then(data => {
-        // GoldAPI gives the exact price in GBP per ounce directly! 
-        if (data && data.price) {
-            goldPricePerOz = data.price;
-            console.log("True Live GBP Gold Price Loaded:", goldPricePerOz);
-        } else {
-            // Backup failover matched exactly to current market tiers
-            goldPricePerOz = 3240.50; 
-        }
+    .then(response => {
+    if (!response.ok) throw new Error("Network response was not stable");
+    return response.json();
 
-            
-            // If your script has a function below to redraw the chart, run it here:
-            if (typeof initChart === "function") {
-                // Assuming you have an existing price array tracking historical intervals
-                initChart(data.time_last_update_utc, [goldPricePerOz]);
-            }
+.then(data => {
+    // Dynamically check for a valid price from GoldAPI matching your selected currency
+    if (data && data.price) {
+        goldPricePerOz = data.price;
+        console.log(`True Live ${currentCurrency} Gold Price Loaded:`, goldPricePerOz);
+        
+        // This drops the loading screen and pushes your real number to the box
+        const displayBox = document.getElementById("gold-price-display") || document.querySelector("h1") || document.querySelector(".price-display");
+        if (displayBox) {
+            displayBox.innerText = goldPricePerOz.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        }
+        
+        // Triggers your calculator math to run immediately using the fresh feed
+        if (typeof updateCalculator === "function") updateCalculator();
+        if (typeof updateChart === "function" && chart) updateChart();
+    } else {
+        throw new Error("Invalid API response shape");
+    }
+})
+.catch(error => {
+    console.error("System failover triggered:", error);
+    // Safe hardcoded backup numbers to keep the screen alive if the API hits a wall
+    goldPricePerOz = currentCurrency === "USD" ? 2515.20 : currentCurrency === "EUR" ? 2270.40 : 1930.50;
+    
+    const displayBox = document.getElementById("gold-price-display") || document.querySelector("h1");
+    if (displayBox) displayBox.innerText = goldPricePerOz.toFixed(2);
+});
+
         })
         .catch(err => console.error("Data stream bypass error:", err));
 
