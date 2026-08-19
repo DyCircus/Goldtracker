@@ -152,9 +152,9 @@
     let chart = null;
     const GRAMS_PER_OZ = 31.1034768;
     // 1. Get the current currency code selected in your dropdown menu layout
-    const currencyDropdown = document.getElementById("currency-select"); 
+       // Safeguard setup: If the menu box isn't found, default smoothly to GBP
+    const currencyDropdown = document.getElementById("currency-select") || document.querySelector("select"); 
     const currentCurrency = currencyDropdown ? currencyDropdown.value : "GBP";
-
     // 2. Fetch dynamically from GoldAPI using the selected currency variable
                fetch(`https://www.goldapi.io/api/XAU/${currentCurrency}`, {
  headers: {
