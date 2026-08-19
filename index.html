@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -151,15 +152,12 @@
     let goldPricePerOz = 3215.40; // Updated fallback target
     let chart = null;
     const GRAMS_PER_OZ = 31.1034768;
+const apiUrl = "https://api.gold-api.com/price/XAU";
 
-       // Fetch live market data directly in the user's browser
-    // Fetch directly from GoldAPI using an unblocked secure data configuration
-    fetch("https://www.goldapi.io/api/XAU/GBP", {
-        headers: {
-            "x-access-token": "goldapi-584738303b42f430b53b580bee1ab313-io",
-            "Content-Type": "application/json"
-        }
-    })
+fetch(apiUrl, {
+    method: "GET"
+})
+
     .then(response => response.json())
     .then(data => {
         // GoldAPI gives the exact price in GBP per ounce directly! 
@@ -261,7 +259,7 @@
 
             async function fetchPrice() {
                 try {
-                    const response = await fetch("https://www.goldapi.io/api/XAU/GBP", {
+                    const response = await fetch("https://api.gold-api.com/price/XAU/GBP");
                         method: 'GET',
                         headers: { 'x-access-token': apiKey, 'Content-Type': 'application/json' }
                     });
