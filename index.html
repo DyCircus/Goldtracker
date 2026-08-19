@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -259,7 +260,7 @@ fetch(apiUrl, {
 
             async function fetchPrice() {
                 try {
-                    const response = await fetch("https://api.gold-api.com/price/XAU/GBP");
+                    const response = await fetch("https://www.goldapi.io/api/XAU/GBP", {
                         method: 'GET',
                         headers: { 'x-access-token': apiKey, 'Content-Type': 'application/json' }
                     });
